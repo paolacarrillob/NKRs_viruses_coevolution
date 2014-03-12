@@ -162,8 +162,14 @@ bool World::Initialize()
 		KIRGene dummy_gene(KIRspecificity); //create only one functional KIR
 		dummy_gene.SetGeneType(InitialKIRGeneType);
 		KIRGenesMap.FillMap(MHCPool, dummy_gene);
+		//create another functional KIR (with the opposite type than the first one, but with the same specificity
 
-		for(int i = 1; i<KIRLoci; i++) //and fill the rest with pseudo genes!
+		KIRGene next_dummy_gene(KIRspecificity);
+		int otherGeneType = 1-InitialKIRGeneType;
+		next_dummy_gene.SetGeneType(otherGeneType);
+		KIRGenesMap.FillMap(MHCPool, next_dummy_gene);
+
+		for(int i = 2; i<KIRLoci; i++) //and fill the rest with pseudo genes!
 		{
 			KIRGene dummy_gene(15);
 			dummy_gene.SetGeneType(InitialKIRGeneType);

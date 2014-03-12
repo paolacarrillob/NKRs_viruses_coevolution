@@ -10,7 +10,7 @@
 //Prepare the randomizer
 
 namespace MathFunctions{
-   boost::mt19937 boostRandomSeed(static_cast<unsigned int>(std::time(NULL)));
+   boost::mt19937 boostRandomSeed(static_cast<unsigned int>(time(NULL)));
    boost::uniform_real<> u01( 0., 1. );
    boost::variate_generator<boost::mt19937&, boost::uniform_real<> > s01(boostRandomSeed, u01);
    boost::variate_generator<boost::mt19937&, boost::uniform_real<> > RandomNumberDouble(boostRandomSeed, u01);
