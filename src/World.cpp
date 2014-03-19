@@ -386,19 +386,19 @@ void World::Simulate()
 	const string populationFile("PopulationSize.log");
 	populationSize.open(populationFile.c_str());
 	//populationSize <<"#time\tpopSize\tsimpleInfections\tdoubleInfections\ttripleInfections\twt\twt_i\tmhc_down\tmhc_down_i\tdecoy\tdecoy_i\n";
-	populationSize <<"#time\tpopSize\twt_s_mhc_s\twt_s_mhc_c\twt_s_mhc_i\twt_c_mhc_s\twt_c_mhc_c\twt_c_mhc_i\twt_i_mhc_s\twt_i_mhc_c\twt_i_mhc_i\n";
+	populationSize <<"#time\tpopSize\twt_s_mhc_s\twt_s_mhc_c\twt_s_mhc_i\twt_c_mhc_s\twt_c_mhc_c\twt_c_mhc_i\twt_i_mhc_s\twt_i_mhc_c\twt_i_mhc_i\tbest\thigh\tnormal\tmedium\tlow\tzero\n";
 	double lastPopulationOutfileTime = 0.0;
 	double lastOutfileTime = 0.0;
 	double lastBackupTime = 0.0;
 	double lastAcuteInfectionTime = 0.0;
-
+	double lastCountingProtectionLevels = 0.0;
+	double rateSavingProtectionLevels = 1.0/(100*YEAR);
 	isFileOpen = false;
 	SaveMap();
 	cout << "simulation Time: "<<simulationTime <<"\n"<<endl;
 	unsigned long int id_counter = initHostPop;
 
 	DetermineSecondVirus(); //assign the second and third types of the virus!
-
 	while(simulationTime <=timeEnd)
 	{
 		// printing out the backup files
@@ -419,6 +419,18 @@ void World::Simulate()
 		//introduce infections
 		IntroduceVirus(firstVirus, timeIntroducingInfection, mutationTypeVirus);
 		AddMoreViruses();
+
+		//reset the number of protection types after one year of gathering information... otherwise i don't have anything!
+		if(floor((simulationTime-lastCountingProtectionLevels)*rateSavingProtectionLevels)>0)
+		{
+			best_protection = 0; //p = 0.95
+			high_protection = 0; // p = 0.8
+			normal_protection = 0; // p = 0.7
+			medium_protection = 0; // p = 0.45
+			low_protection = 0; // p = 0.25
+			zero_protection = 0; //p=0
+			lastCountingProtectionLevels = simulationTime;
+		}
 
 		for(shuffledHostsit = shuffledHosts.begin(); shuffledHostsit!=shuffledHosts.end(); shuffledHostsit++)
 		{
@@ -446,9 +458,12 @@ void World::Simulate()
 				if(inf->IsAcute())
 				{
 					if((simulationTime - inf->GetInfectionTime()) == (1.0 + 4.0 *timeInfection)*WEEK)
-						hosts.at(index).ClearInfection(simulationTime,(*inf));					
+					{
+						hosts.at(index).ClearInfection(simulationTime,(*inf));
+						CountProtectionType((*inf));
+						inf->SetProtectionLevel("dummy");//reset the protection level
+					}
 				}
-
 			}
 			hosts.at(index).UpdateParameters(timeStep,simulationTime);
 		}
@@ -499,6 +514,22 @@ void World::Simulate()
 	populationSize.close();
 	SaveMap();
 	WriteInfo();
+}
+void World :: CountProtectionType(Infection& _infection)
+{
+	if(_infection.IsProtectionBest())
+		best_protection++; //p = 0.95
+	if(_infection.IsProtectionHigh())
+		high_protection++; // p = 0.8
+    if(_infection.IsProtectionNormal())
+    	normal_protection++; // p = 0.7
+    if(_infection.IsProtectionMedium())
+    	medium_protection++; // p = 0.45
+    if(_infection.IsProtectionLow())
+    	low_protection++; // p = 0.25
+    if(_infection.IsProtectionZero())
+    	zero_protection++; //p=0
+    //cout << simulationTime<<": "<<best_protection << "|" << high_protection << "|"<<normal_protection << "|"<<medium_protection << "|"<<low_protection << "|"<<zero_protection <<"\n";
 }
 
 void World :: IntroduceVirus(Virus& secondVirus, double timeToIntroduceTheVirus, int _mutationTypeVirus)
@@ -642,7 +673,7 @@ void World::TrackInfectedIndividuals()
 					if(it->IsImmune())
 						wt_immune_mhc_chronic++;
 					else
-						wt_chronic_mhc_immune;
+						wt_chronic_mhc_immune++;
 				}
 				if(it->pathogen.IsDownregulatingMHC())
 				{
@@ -719,7 +750,8 @@ void World:: SaveGenes()
 void World::SavePopulationSize()
 {
 	//populationSize <<simulationTime/YEAR <<"\t"<< hosts.size() <<"\t"<<simpleInfection << "\t"<< doubleInfection<< "\t"<< tripleInfection<< "\t"<<wildtype<<"\t"<<wildtype_immune << "\t"<<downregulating<< "\t"<<downregulating_immune<<"\t"<< decoy <<"\t"<<decoy_immune<<"\n";
-	populationSize <<simulationTime/YEAR <<"\t"<< hosts.size() <<"\t" <<wt_susceptible_mhc_susceptible<<"\t"<<wt_susceptible_mhc_chronic<< "\t"<<wt_susceptible_mhc_immune<< "\t"<<wt_chronic_mhc_susceptible<<"\t"<< wt_chronic_mhc_chronic<<"\t"<<wt_chronic_mhc_immune<<"\t"<<wt_immune_mhc_susceptible<<"\t"<<wt_immune_mhc_chronic<<"\t"<<wt_immune_mhc_immune<<"\n";
+	populationSize <<simulationTime/YEAR <<"\t"<< hosts.size() <<"\t" <<wt_susceptible_mhc_susceptible<<"\t"<<wt_susceptible_mhc_chronic<< "\t"<<wt_susceptible_mhc_immune<< "\t"<<wt_chronic_mhc_susceptible<<"\t"<< wt_chronic_mhc_chronic<<"\t"<<wt_chronic_mhc_immune<<"\t"<<wt_immune_mhc_susceptible<<"\t"<<wt_immune_mhc_chronic<<"\t"<<wt_immune_mhc_immune<<"\t";
+	populationSize <<  best_protection <<"\t" << high_protection <<"\t" << normal_protection <<"\t" <<medium_protection << "\t" << low_protection << "\t"<< zero_protection <<"\n";
 }
 
 /*This function keeps track (ans saves) several parameters of the host and virus*/

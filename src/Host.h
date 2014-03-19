@@ -72,9 +72,9 @@ public:
 	virtual ~Infection(){};
 
 	enum state{incubating, acute, chronic, memory, cleared};
-
-
-	void SetInfectionParameters(state _type, double inf_time, double immune_time, double clearance_time); //works
+	enum protection{best, high, normal, medium, low, zero, dummy}; //dummy protection means that the host has not been ifnected yet.. so it doesn't really count!
+	//corresponds to (0.95, 0.8, 0.7, 0.45, 0.25, 0, n.a)
+	void SetInfectionParameters(state _type, protection _protectionwt, double inf_time, double immune_time, double clearance_time); //works
 	void ResetInfection(double simulationTime); //ok
 	void SetInfectionType(double simulationTime); //ok
 	double GetInfectionTime(){return infectionTime;};
@@ -85,12 +85,22 @@ public:
 	//Virus& GetVirus(){return pathogen;}
 	Infection& Copy (Infection& rhsInfection);
 
+	void SetProtectionLevel(const string protectionlevel);
+
 	bool IsPathogenNew(Virus& _newVirus);
 	bool IsCured();
 	bool IsAcute();
 	bool IsChronic();
 	bool IsImmune();
 	bool IsIncubating();
+
+	bool IsProtectionBest();
+	bool IsProtectionHigh();
+	bool IsProtectionNormal();
+	bool IsProtectionMedium();
+	bool IsProtectionLow();
+	bool IsProtectionZero();
+
 	void TransmitInfection(Virus& nastyInfection, double simulationTime);
 
 	void SaveParametersInfection(fstream& outfile); //works
@@ -108,6 +118,7 @@ protected:
     double ageInfection;
     double ageClearance;
     state infectionType;
+    protection protectionLevel;
 };
 
 

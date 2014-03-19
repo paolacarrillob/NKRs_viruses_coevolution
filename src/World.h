@@ -36,6 +36,8 @@ public:
 	double GetAgeDependentBirthRate(const double age)const;
 	double GetIntrinsicDeathRate(const double age, const double viralrate)const;
 	
+	void CountProtectionType(Infection& _infection);
+
 	void Simulate();
 
 	void SaveGenes();//works
@@ -46,6 +48,7 @@ public:
 
 	void SaveBackupFile();//works
 	void LoadBackupFile(const string& backupName);//works
+
 
 	vector<Host> hosts; //vector of hosts
 	MHCGenePool MHCPool; //vector of integers representing MHC pools
@@ -132,6 +135,13 @@ protected:
     int wt_immune_mhc_susceptible;
     int wt_immune_mhc_chronic;
     int wt_immune_mhc_immune;
+
+    int best_protection; //p = 0.95
+    int high_protection; // p = 0.8
+    int normal_protection; // p = 0.7
+    int medium_protection; // p = 0.45
+    int low_protection; // p = 0.25
+    int zero_protection; //p=0
 
 	int simpleInfection;
 	int doubleInfection;

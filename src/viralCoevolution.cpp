@@ -47,7 +47,6 @@ int main(int argc, char*argv[])
 
 
 	exit(-1);*/
-
 	cerr << "Testing if stderr is redirected to stdoutput" << endl;
 	if (argc<2)
 	{

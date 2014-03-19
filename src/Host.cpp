@@ -907,13 +907,24 @@ void Host::ClearInfection(double simulationTime, Infection& _infection)
 			if(aNKRs_bindingViralMol)
 			{
 				if(RandomNumberDouble()<0.95)//if there is at least one aNKR that binds the viral protein
+				{
 					_infection.ResetInfection(simulationTime);//there should be maximal protection
+					_infection.SetProtectionLevel("best");
+				}
+				//else
+				//	_infection.SetProtectionLevel("zero");
 			}
 			else //if there not aNKR binding the viral protein
 			{
 				if(RandomNumberDouble()<0.8) //the protection is still good (like the wild-type virus)
+				{
 					_infection.ResetInfection(simulationTime);//because of responses of the adaptive immune system
+					_infection.SetProtectionLevel("high");
+				}
+				//else
+					//_infection.SetProtectionLevel("zero");
 			}
+
 		}break;
 		case 1: //if it's an mHC downregulating virus, check first whether there is only one MHC that has been downregulated
 		{
@@ -961,12 +972,12 @@ void Host::ClearInfection(double simulationTime, Infection& _infection)
 
 void Host :: ClearDecoyWithInhibitoryOnly(int inhibiting_signal, double simulationTime, Infection& _infection)
 {
-	//cout <<"clearing decoy: "<<inhibitoryKIRs << "|"<< activatingKIRs << endl;
 	if(!inhibiting_signal) //if there is no inhibiting signal, receptor didn't bind to the decoy: protection like MHC down
 	{
 		if(RandomNumberDouble()<0.45)
 		{
 			_infection.ResetInfection(simulationTime);
+			_infection.SetProtectionLevel("medium");
 			//cout <<"clearing infection with iNKRs.."<<endl;
 		}
 			
@@ -976,12 +987,16 @@ void Host :: ClearDecoyWithInhibitoryOnly(int inhibiting_signal, double simulati
 void Host :: ClearDecoyWithActivatingOnly(int activating_signal, double simulationTime, Infection& _infection)
 {
 	//cout <<"clearing decoy: "<<inhibitoryKIRs << "|"<< activatingKIRs << endl;
+	int counter = 0;
 	if(activating_signal) //if activating receptor recognizes decoy, but there are no inhibitory receptors, the virus still escapes response of the T-cells
 	{                       // protection as with an MHC-downregulating one
 		if(RandomNumberDouble()<0.25)
+		{
 			_infection.ResetInfection(simulationTime);
+			_infection.SetProtectionLevel("low");
+
+		}
 	}
-	
 }
 
 void Host ::ClearDecoyWithActivatingAndInhibitory(int inhibiting_signal, int activating_signal, double simulationTime, Infection& _infection)
@@ -996,6 +1011,7 @@ void Host ::ClearDecoyWithActivatingAndInhibitory(int inhibiting_signal, int act
 			{
 				_infection.ResetInfection(simulationTime);
 				//cout <<"having the best protection.."<<endl;
+				_infection.SetProtectionLevel("normal");
 				return;
 			}
 		}
@@ -1005,6 +1021,7 @@ void Host ::ClearDecoyWithActivatingAndInhibitory(int inhibiting_signal, int act
 			{
 				//cout <<"good protection!" <<endl;
 				_infection.ResetInfection(simulationTime);
+				_infection.SetProtectionLevel("low");
 				return;
 			}
 		}
@@ -1018,10 +1035,12 @@ void Host ::ClearDecoyWithActivatingAndInhibitory(int inhibiting_signal, int act
 			if(RandomNumberDouble()<0.45)
 			{
 				_infection.ResetInfection(simulationTime);
-				//cout <<"having good protection.."<<endl;
+				_infection.SetProtectionLevel("medium");
 				return;
 			}
 		}
+		else //if one iNKRs recognizes the decoy, then there is zero protection!
+			_infection.SetProtectionLevel("zero");
 	}
 }
 
@@ -1262,19 +1281,38 @@ void Host::RestoreHost(const string& sline)
 //FUNCTIONS OF CLASS INFECTION
 Infection::Infection()
 {
-	SetInfectionParameters(cleared, 0.0, 0.0, 0.0);
+	SetInfectionParameters(cleared, dummy, 0.0, 0.0, 0.0);
 }
 
 Infection::Infection(Virus& _virus)
 {
 	pathogen.Copy(_virus);
-	SetInfectionParameters(cleared, 0.0, 0.0, 0.0);
+	SetInfectionParameters(cleared, dummy, 0.0, 0.0, 0.0);
 
 }
 
-void Infection :: SetInfectionParameters(state _type, double inf_time, double immune_time, double clearance_time)
+void Infection::SetProtectionLevel(const string protection)
+{
+	if(protection.compare("best") == 0)
+		protectionLevel = best;
+	if(protection.compare("high") == 0)
+		protectionLevel = high;
+	if(protection.compare("normal") == 0)
+		protectionLevel = normal;
+	if(protection.compare("medium") == 0)
+		protectionLevel = medium;
+	if(protection.compare("low") == 0)
+		protectionLevel = low;
+	if(protection.compare("zero") == 0)
+		protectionLevel = zero;
+	if(protection.compare("dummy") == 0)
+		protectionLevel = dummy;
+}
+
+void Infection :: SetInfectionParameters(state _type, protection protection_type, double inf_time, double immune_time, double clearance_time)
 {
 	infectionType = _type;
+	protectionLevel = protection_type;
 	infectionTime = inf_time;
 	immunityTime = immune_time;
 	clearanceTime = clearance_time;
@@ -1344,6 +1382,49 @@ bool Infection :: IsIncubating()
 		return false;
 }
 
+bool Infection :: IsProtectionBest()
+{
+	if(protectionLevel == best)
+		return true;
+	else
+		return false;
+}
+
+bool Infection :: IsProtectionHigh()
+{
+	if(protectionLevel == high)
+		return true;
+	else
+		return false;
+}
+bool Infection :: IsProtectionNormal()
+{
+	if(protectionLevel == normal)
+		return true;
+	else
+		return false;
+}
+bool Infection :: IsProtectionMedium()
+{
+	if(protectionLevel == medium)
+		return true;
+	else
+		return false;
+}
+bool Infection :: IsProtectionLow()
+{
+	if(protectionLevel == low)
+		return true;
+	else
+		return false;
+}
+bool Infection :: IsProtectionZero()
+{
+	if(protectionLevel == zero)
+		return true;
+	else
+		return false;
+}
 void Infection::ResetInfection(double simulationTime)
 {
 	//set the viral load to zero, but keep the viral type to keep track of which infections is still present in the host!
@@ -1406,6 +1487,7 @@ void Infection::PrintParameters()
 {
 	//cout <<"infectionType infectionTime clearanceTime immunityTime and other viral parameters"<<endl;
 	cout << infectionType<< "\t"<< infectionTime << "\t"<<clearanceTime << "\t"<<immunityTime << "\t";
+	cout <<"protection:" <<protectionLevel <<"\t";
 	pathogen.PrintParametersVirus();
 }
 
