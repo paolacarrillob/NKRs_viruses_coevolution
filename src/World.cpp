@@ -323,22 +323,24 @@ void World::Infect(int index)
 						if(RandomNumberDouble()<transmissionRateAcute)
 						{
 							//get the acute virus
-							stupidVirus.Copy(hosts.at(randomindex).GetAcuteInfection());
+							Virus dummy;
+							stupidVirus.Copy(hosts.at(randomindex).GetAcuteInfection(dummy));
+							//stupidVirus.PrintParametersVirus(); cout <<"Infect acute"<<endl;
 							hosts.at(index).InfectWith(stupidVirus, simulationTime, maxNumberOfInfectionsPerHost);
 						}
-
-					break;
+						break;
 					case 2:
 						if(RandomNumberDouble()<transmissionRateChronic)
 						{
 							// get the chronic virus
-							stupidVirus.Copy(hosts.at(randomindex).GetChronicInfection());
+							Virus dummy;
+							stupidVirus.Copy(hosts.at(randomindex).GetChronicInfection(dummy));
 							hosts.at(index).InfectWith(stupidVirus, simulationTime, maxNumberOfInfectionsPerHost);
 						}
-					break;
+						break;
 					case 3: break;
 					case 4: break;
-					//default: cout <<"ERROR!!!!!! shouldn't happen!" <<endl; exit(1);
+					default: cout <<"ERROR!!!!!! shouldn't happen!" <<endl; exit(1);
 				}
 			}
 		}

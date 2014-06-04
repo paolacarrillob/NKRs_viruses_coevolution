@@ -165,8 +165,8 @@ public:
 	void ClearDecoyWithActivatingOnly(int activating_signal, double simulationTime, Infection& _infection);
 	void ClearDecoyWithActivatingAndInhibitory(int inhibiting_signal, int activating_signal, double simulationTime, Infection& _infection);
 	
-	Virus& GetAcuteInfection(); //works
-	Virus& GetChronicInfection(); //works
+	Virus& GetAcuteInfection(Virus& virus); //works
+	Virus& GetChronicInfection(Virus& virus); //works
 	int GetMainInfectionType(); //works
 	int CountInfections();//ok
 	

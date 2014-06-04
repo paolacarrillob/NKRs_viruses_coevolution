@@ -277,8 +277,8 @@ Host::Host(int loci_kir, int loci_mhc, vector<Gene>& mhcGenesParent, GenePool& m
 	int KIR_end_dad = 0;
 
 	//pick haplotype 1/0 of each parent for the KIRs!
-	int hap_mum=(RandomNumberDouble()<0.5);
-	int hap_dad= (RandomNumberDouble()<0.5);
+	bool hap_mum=(RandomNumberDouble()<0.5);
+	bool hap_dad= (RandomNumberDouble()<0.5);
 	//int k= 0;
 	if(hap_mum)
 	{
@@ -304,7 +304,7 @@ Host::Host(int loci_kir, int loci_mhc, vector<Gene>& mhcGenesParent, GenePool& m
 	}
 
 	//pick haplotype 1/0 of the parent for the MHCs!
-	int hap_mhc = (RandomNumberDouble()<0.5);
+	bool hap_mhc = (RandomNumberDouble()<0.5);
 	if(hap_mhc)
 	{
 		MHC_init_mum = LOCI_MHC;
@@ -318,7 +318,7 @@ Host::Host(int loci_kir, int loci_mhc, vector<Gene>& mhcGenesParent, GenePool& m
 	}
 
 	//copy the KIR haplotype into the new host (mutation occurs!)
-	int hap_child = (RandomNumberDouble()<0.5);
+	bool hap_child = (RandomNumberDouble()<0.5);
 	if(hap_child)
 	{
 		for(int i=KIR_init_dad; i<KIR_end_dad; i++)
@@ -457,13 +457,29 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 	if(mutationType == 1)//pick another molecules as mutation
 	{
 		KIRGene newGene(RandomNumber(2,16));
-		if(!kirMap.IsGeneInMap(newGene))
+		/*if(!kirMap.IsGeneInMap(newGene))
 		{
 			kirMap.FillMap(mhcPool, newGene);
 			if(gene_type !=2)////force to have only one type of receptors, if the user wants it!
 				newGene.SetGeneType(gene_type);
 			kir_hap2.Copy(newGene);
+		}//*/
+		int M_id = 0;
+		int mhcPoolSize = mhcPool.GetPoolSize();
+		
+		//calculate the value of M_id to determine whether the gene is pseudogene or not
+		for(unsigned int i = 0; i < mhcPoolSize; i++)
+		{
+			Gene mhcGene;
+			mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
+			int L = kir_hap2.BindMolecule(mhcGene);
+			if(L >= kir_hap2.GetGeneSpecificity())
+				M_id += (1<<i);
 		}
+		
+		if(gene_type !=2)////force to have only one type of receptors, if the user wants it!
+			newGene.SetGeneType(gene_type);
+		kir_hap2.Copy(newGene);
 	}
 
 	if(mutationType == 2)//point mutation + L
@@ -472,13 +488,37 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 		if(RandomNumberDouble()<0.8) //pointmutation
 		{
 			kir_hap2.PointMutation();
-			kirMap.FillMap(mhcPool, kir_hap2);
+			//kirMap.FillMap(mhcPool, kir_hap2);
+			int M_id = 0;
+			int mhcPoolSize = mhcPool.GetPoolSize();
+			
+			//calculate the value of M_id to determine whether the gene is pseudogene or not
+			for(unsigned int i = 0; i < mhcPoolSize; i++)
+			{
+				Gene mhcGene;
+				mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
+				int L = kir_hap2.BindMolecule(mhcGene);
+				if(L >= kir_hap2.GetGeneSpecificity())
+					M_id += (1<<i);
+			}
 		}
 
 		if(RandomNumberDouble()<0.8) //mutate L
 		{
 			kir_hap2.MutateSpecificity();
-			kirMap.FillMap(mhcPool, kir_hap2);
+			//kirMap.FillMap(mhcPool, kir_hap2);
+			int M_id = 0;
+			int mhcPoolSize = mhcPool.GetPoolSize();
+			
+			//calculate the value of M_id to determine whether the gene is pseudogene or not
+			for(unsigned int i = 0; i < mhcPoolSize; i++)
+			{
+				Gene mhcGene;
+				mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
+				int L = kir_hap2.BindMolecule(mhcGene);
+				if(L >= kir_hap2.GetGeneSpecificity())
+					M_id += (1<<i);
+			}
 		}
 		if(RandomNumberDouble()<0.8)//mutate type
 		{
@@ -493,14 +533,32 @@ void Host::MutateGenesForMutualInvasion(int mutationType, KIRGene& kir_hap2, Map
 	if(mutationType == 1)//pick another molecule as mutation
 	{
 		KIRGene newGene(RandomNumber(2,16));
-		if(!kirMap.IsGeneInMap(newGene))
+		/*if(!kirMap.IsGeneInMap(newGene))
 		{
 			kirMap.FillMap(mhcPool, newGene);
 			//cout <<simulationTime << "|" <<time_invasion <<endl;
 			if(simulationTime < time_invasion)//only after the invasion time, the receptor type should be allowed to mutate
 				newGene.SetGeneType(gene_type);
 			kir_hap2.Copy(newGene);
+		}//*/
+		int M_id = 0;
+		int mhcPoolSize = mhcPool.GetPoolSize();
+		
+		//calculate the value of M_id to determine whether the gene is pseudogene or not
+		for(unsigned int i = 0; i < mhcPoolSize; i++)
+		{
+			Gene mhcGene;
+			mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
+			int L = kir_hap2.BindMolecule(mhcGene);
+			if(L >= kir_hap2.GetGeneSpecificity())
+				M_id += (1<<i);
 		}
+		//set the Gene pseudo
+		newGene.SetPseudogene(M_id);
+		if(gene_type !=2)////force to have only one type of receptors, if the user wants it!
+			newGene.SetGeneType(gene_type);
+		kir_hap2.Copy(newGene);
+		return;
 	}
 
 	if(mutationType == 2)//point mutation + L
@@ -508,20 +566,48 @@ void Host::MutateGenesForMutualInvasion(int mutationType, KIRGene& kir_hap2, Map
 		if(RandomNumberDouble()<0.8)
 		{
 			kir_hap2.PointMutation();
-			kirMap.FillMap(mhcPool, kir_hap2);
+			//kirMap.FillMap(mhcPool, kir_hap2);
+			int M_id = 0;
+			int mhcPoolSize = mhcPool.GetPoolSize();
+			
+			//calculate the value of M_id to determine whether the gene is pseudogene or not
+			for(unsigned int i = 0; i < mhcPoolSize; i++)
+			{
+				Gene mhcGene;
+				mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
+				int L = kir_hap2.BindMolecule(mhcGene);
+				if(L >= kir_hap2.GetGeneSpecificity())
+					M_id+= (1<<i);
+			}
+			//set the Gene pseudo
+			kir_hap2.SetPseudogene(M_id);
 		}
 
 		if(RandomNumberDouble()<0.2)
 		{
 			kir_hap2.MutateSpecificity();
-			kirMap.FillMap(mhcPool, kir_hap2);
-
+			//kirMap.FillMap(mhcPool, kir_hap2);
+			int M_id = 0;
+			int mhcPoolSize = mhcPool.GetPoolSize();
+			
+			//calculate the value of M_id to determine whether the gene is pseudogene or not
+			for(unsigned int i = 0; i < mhcPoolSize; i++)
+			{
+				Gene mhcGene;
+				mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
+				int L = kir_hap2.BindMolecule(mhcGene);
+				if(L >= kir_hap2.GetGeneSpecificity())
+					M_id+= (1<<i);
+			}
+			//set the Gene pseudo
+			kir_hap2.SetPseudogene(M_id);
 		}
 		if(RandomNumberDouble()<0.2)
 		{
 			if(simulationTime >= time_invasion) //only after the invasion time, the receptor type should be allowed to mutate
 				kir_hap2.MutateReceptorType();
 		}
+		return;
 	}
 }
 
@@ -767,20 +853,36 @@ void Host::InfectWith(Virus& newVirus, double simulationTime, int maxNumberInfec
 	{
 		if(infections.size()<maxNumberInfections) //check first whether it is already at its maximum
 		{
-			int howManyInfections = 0;
+			//*
+			bool isInTheInfectionsList = false;
 			for (it = infections.begin(); it != end; it++)
 			{
-				if(!it->IsPathogenNew(newVirus)) // if the virus is already there (i.e. as incubating, acute, chronic or immune) ignore it
-					continue;
-				else //but if it's not the same, keep track of how many infections are different from the new one
-					howManyInfections++;
+				if(!it->IsPathogenNew(newVirus)) // if the virus is not new  (i.e. as incubating, acute, chronic or immune) ignore it
+				{
+					isInTheInfectionsList=true;
+				}
 			}
-			
-			if(howManyInfections == infections.size()) // if the new virus is different from ALL infections present in that host
+			if(!isInTheInfectionsList)
 			{
 				newInfection.TransmitInfection(newVirus,simulationTime);//set the parameters to the new infection!
 				infections.push_back(newInfection);
 			}
+			/*
+			 int howManyInfections = 0;
+			 for (it = infections.begin(); it != end; it++)
+			 {
+			 if(!it->IsPathogenNew(newVirus)) // if the virus is already there (i.e. as incubating, acute, chronic or immune) ignore it
+			 continue;
+			 else //but if it's not the same, keep track of how many infections are different from the new one
+			 howManyInfections++;
+			 }
+			 
+			 if(howManyInfections == infections.size()) // if the new virus is different from ALL infections present in that host
+			 {
+			 newInfection.TransmitInfection(newVirus,simulationTime);//set the parameters to the new infection!
+			 infections.push_back(newInfection);
+			 }
+			 //*/
 		}
 	}
 }
@@ -1045,10 +1147,10 @@ void Host ::ClearDecoyWithActivatingAndInhibitory(int inhibiting_signal, int act
 }
 
 /*This functions returns the Virus of the acute infection*/
-Virus& Host :: GetAcuteInfection()
+Virus& Host :: GetAcuteInfection(Virus& dummy)
 {
 	list<Infection>:: iterator it;
-	vector<Virus> randomAcuteInfections;;
+	vector<Virus> randomAcuteInfections;
 	int inf_type = 0;
 	for(it = infections.begin(); it!= infections.end(); it++)
 	{
@@ -1060,12 +1162,13 @@ Virus& Host :: GetAcuteInfection()
 	}
 	
 	int random = RandomNumber(0,randomAcuteInfections.size()-1);
-	//cout <<"do i get stuck here? GetAcuteInfection!!! "<<endl;
-	return randomAcuteInfections.at(random); // in case the list is empty, return an empty virus... shoudln't happen anyway! if the list is empty, this function should not be called!
+	//randomAcuteInfections.at(random).PrintParametersVirus(); cout<<"getAcute()"<<endl;
+	dummy.Copy(randomAcuteInfections.at(random));
+	return dummy; // in case the list is empty, return an empty virus... shoudln't happen anyway! if the list is empty, this function should not be called!
 }
 
-/*This functions returns a ramdonly chose chronic virus infection  !!!!!! WHAT IS HAPPENING TO THIS VECTOR???? SHALL I DELETE IT SOMEHOW????*/
-Virus& Host :: GetChronicInfection()
+/*This functions returns a randomly chose chronic virus infection  !!!!!!*/
+Virus& Host :: GetChronicInfection(Virus &dummy)
 {
 	vector<Virus> randomChronicInfections;
 	list<Infection>:: iterator it;
@@ -1080,10 +1183,9 @@ Virus& Host :: GetChronicInfection()
 			randomChronicInfections.push_back(it->pathogen);
 	}
 	int random = RandomNumber(0,randomChronicInfections.size()-1);
-	//cout << randomChronicInfections.size() << "   size....." <<endl;
-	return randomChronicInfections.at(random);
+	dummy.Copy(randomChronicInfections.at(random));
+	return dummy;
 }
-
 /*This functions counts the number of chronic and acute infections (i.e ignores incubating individuals and obviously immune ones)*/
 int Host :: CountInfections()
 {
