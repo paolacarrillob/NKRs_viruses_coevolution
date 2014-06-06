@@ -201,7 +201,7 @@ Host::Host(int loci_kir, int loci_mhc, double _mutationRate, bool _tuning, int n
 
 	InitializeHostParameters(_mutationRate,_tuning, loci_kir, loci_mhc);
 	//fill the mhc Genes
-	for(int i = 0; i <LOCI_MHC*TWO; i ++)
+	for(int i = 0; i <lociMHC*TWO; i++)
 	{
 		Gene firstGene;
 		int mhc1 = mhcPool.RandomlyPickGene(hla);
@@ -236,8 +236,8 @@ Host::Host(int loci_kir, int loci_mhc, double _mutationRate, bool _tuning, int n
 	}
 
 	int size = kirGenes.size();
-	//make sure that the first haplotype has number LOCI_KIR (regardless of the Map size!)
-	while(size < LOCI_KIR)
+	//make sure that the first haplotype has number lociKIR (regardless of the Map size!)
+	while(size < lociKIR)
 	{
 		KIRGene bla = kirGenes.at(size-1);
 		kirGenes.push_back(bla);
@@ -245,7 +245,7 @@ Host::Host(int loci_kir, int loci_mhc, double _mutationRate, bool _tuning, int n
 	}
 
 	//copy the first kirs into the other haplotype (all individuals are homozygous!)
-	for(int i=0; i<LOCI_KIR; i++)
+	for(int i=0; i<lociKIR; i++)
 	{
 		KIRGene kir = kirGenes.at(i);
 		kirGenes.push_back(kir);
@@ -282,39 +282,39 @@ Host::Host(int loci_kir, int loci_mhc, vector<Gene>& mhcGenesParent, GenePool& m
 	//int k= 0;
 	if(hap_mum)
 	{
-		KIR_init_mum = LOCI_KIR;
-		KIR_end_mum = LOCI_KIR*TWO;
+		KIR_init_mum = lociKIR;
+		KIR_end_mum = lociKIR*TWO;
 	}
 	else
 	{
 		KIR_init_mum = 0;
- 		KIR_end_mum = LOCI_KIR;
+ 		KIR_end_mum = lociKIR;
 	}
 
 	if(hap_dad)
 	{
-		KIR_init_dad = LOCI_KIR;
-		KIR_end_dad = LOCI_KIR*TWO;
+		KIR_init_dad = lociKIR;
+		KIR_end_dad = lociKIR*TWO;
 	}
 
 	else
 	{
 		KIR_init_dad = 0;
-		KIR_end_dad = LOCI_KIR;
+		KIR_end_dad = lociKIR;
 	}
 
 	//pick haplotype 1/0 of the parent for the MHCs!
 	bool hap_mhc = (RandomNumberDouble()<0.5);
 	if(hap_mhc)
 	{
-		MHC_init_mum = LOCI_MHC;
-		MHC_end_mum = LOCI_MHC*TWO;
+		MHC_init_mum = lociMHC;
+		MHC_end_mum = lociMHC*TWO;
 	}
 
 	else
 	{
 		MHC_init_mum = 0;
-		MHC_end_mum = LOCI_MHC;
+		MHC_end_mum = lociMHC;
 	}
 
 	//copy the KIR haplotype into the new host (mutation occurs!)
@@ -359,7 +359,7 @@ Host::Host(int loci_kir, int loci_mhc, vector<Gene>& mhcGenesParent, GenePool& m
 		}
 
 		//generate new mhc genes (from the pool) for the new born
-		for(int mm = 0; mm<LOCI_MHC; mm++)
+		for(int mm = 0; mm<lociMHC; mm++)
 		{
 			Gene mhc2;
 			int mhcFromTheGenePool = mhcPool.RandomlyPickGene(dist);
@@ -395,11 +395,24 @@ Host::Host(int loci_kir, int loci_mhc, vector<Gene>& mhcGenesParent, GenePool& m
 			}
 			kirGenes.push_back(kir_hap2);
 		}
+	////////////////////////////////////////
+	///////////     ////////    ////////////
+	////////         ///           /////////
+	//////            /             ////////
+	///////           /            /////////
+	////////                     ///////////
+	/////////                  /////////////
+	//////////               ///////////////
+	///////////           //////////////////
+	/////////////      /////////////////////
+	///////////////  ///////////////////////
+	///////////////_////////////////////////
+	////////////////////////////////////////
 		//copy the MHC haplotype into the new host
 		//generate new mhc genes for the new born
 
 		//generate new mhc genes (from the pool) for the new born
-		for(int mm = 0; mm<LOCI_MHC; mm++)
+		for(int mm = 0; mm<lociMHC; mm++)
 		{
 			Gene mhc2;
 			int mhcFromTheGenePool = mhcPool.RandomlyPickGene(dist);
@@ -416,7 +429,7 @@ Host::Host(int loci_kir, int loci_mhc, vector<Gene>& mhcGenesParent, GenePool& m
 		}
 
 	}
-	ResetGenes(); //reset the expression and functionality back to zero and recalculate these parameters in the education function
+	ResetKIRs(); //reset the expression and functionality back to zero and recalculate these parameters in the education function
 	if(tuning == true)
 	{
 		EducateKIRs();
@@ -432,8 +445,8 @@ void Host::InitializeHostParameters(double mutationRate, bool _tuning, int loci_
 	mutationRateHost = mutationRate;
 	tuning = _tuning;
 	mainInfectionType = susceptible;
-	LOCI_KIR = loci_kir;
-	LOCI_MHC = loci_mhc;
+	lociKIR = loci_kir;
+	lociMHC = loci_mhc;
 	viralDeathRate = 0.0;
 	age = 0.0;
 	inhibitoryKIRs = 0;
@@ -443,7 +456,7 @@ void Host::InitializeHostParameters(double mutationRate, bool _tuning, int loci_
 
 }
 
-void Host::ResetGenes()
+void Host::ResetKIRs()
 {
 	vector<KIRGene>::iterator kirIt;
 	for(kirIt = kirGenes.begin(); kirIt!=kirGenes.end(); kirIt++)
@@ -472,14 +485,15 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 		{
 			Gene mhcGene;
 			mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
-			int L = kir_hap2.BindMolecule(mhcGene);
-			if(L >= kir_hap2.GetGeneSpecificity())
+			int L = newGene.BindMolecule(mhcGene);
+			if(L >= newGene.GetGeneSpecificity())
 				M_id += (1<<i);
 		}
 		
 		if(gene_type !=2)////force to have only one type of receptors, if the user wants it!
 			newGene.SetGeneType(gene_type);
 		kir_hap2.Copy(newGene);
+		return;
 	}
 
 	if(mutationType == 2)//point mutation + L
@@ -524,6 +538,7 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 		{
 			kir_hap2.MutateReceptorType();
 		}
+		return;
 	}
 }
 
@@ -549,8 +564,8 @@ void Host::MutateGenesForMutualInvasion(int mutationType, KIRGene& kir_hap2, Map
 		{
 			Gene mhcGene;
 			mhcGene.SetGeneID(mhcPool.GetGenes().at(i));
-			int L = kir_hap2.BindMolecule(mhcGene);
-			if(L >= kir_hap2.GetGeneSpecificity())
+			int L = newGene.BindMolecule(mhcGene);
+			if(L >= newGene.GetGeneSpecificity())
 				M_id += (1<<i);
 		}
 		//set the Gene pseudo
@@ -615,7 +630,6 @@ void Host::MutateGenesForMutualInvasion(int mutationType, KIRGene& kir_hap2, Map
 void Host :: EducateKIRs()
 {
 	vector<KIRGene>::iterator kirIt;
-	vector<Gene>::iterator mhcIt;
 	//cout <<"hello...educating the kirs..."<<endl;
 	for(kirIt = kirGenes.begin(); kirIt !=kirGenes.end(); kirIt ++)
 	{
@@ -624,32 +638,30 @@ void Host :: EducateKIRs()
 		if(kirIt->IsPseudogene()||kirIt->IsActivating()) //ignore pseudogenes and consider only iNKRs
 			continue;
 		//kirIt->PrintGenes();cout<<endl;
+		vector<Gene>::iterator mhcIt;
+		//Default is false. if they bind to any MHC => set them to true and check next KIR
+		kirIt->SetGeneFunctionality(false);
+		kirIt->SetGeneExpression(false);		
 		for(mhcIt = mhcGenes.begin(); mhcIt !=mhcGenes.end(); mhcIt ++)
 		{
 			int bindingStrength = kirIt->BindMolecule(*mhcIt);
 			//mhcIt->PrintBits();
-			//kirIt->PrintBits();
+			//kirIt->PrintBits();			
 			if(bindingStrength>=kirIt->GetGeneSpecificity()) //AND it binds to the MHC
 			{
 				//cout << "it binds!"<<endl;
 				//kirIt->PrintGenes();
 				kirIt->SetGeneFunctionality(true); //it is licensed!
 				kirIt->SetGeneExpression(true);
+				break;
 				//cout<< "inhibitory |" <<kirIt->IsFunctional()<< kirIt->GetGeneType()<<kirIt->IsExpressed()<<endl;
-			}
-			else // but if it doesn't bind
-			{
-				//cout << "it doesn't bind!"<<endl;
-				kirIt->SetGeneFunctionality(false); // it should not be licensed
-				kirIt->SetGeneExpression(false);
-				//cout<< "inhibitory |" <<kirIt->IsFunctional()<< kirIt->GetGeneType() <<kirIt->IsExpressed()<<endl;
 			}
 		}
 	}
 	CountFunctionalInhibitoryKIRs();
 	//only if there is at least one licensed iNKRs, the NK cells are functional..
 	// otherwise, we consider cell having only aNKRs to be anergic/hyporesponsive
-	if(inhibitoryKIRs)
+	if(inhibitoryKIRs > 0)
 	{
 		//cout <<"yeeeeeaaaaa, at least one licensed iNKR, now the NK cells are functional and we can start looking at the aNKR"<<endl;
 		for(kirIt=kirGenes.begin(); kirIt!=kirGenes.end(); kirIt++)
@@ -658,7 +670,9 @@ void Host :: EducateKIRs()
 				continue;
 			if (kirIt->IsPseudogene())
 				continue;
-			int education_signal_activating = 0; // to keep track of the activating signal per receptor
+			//int education_signal_activating = 0; // to keep track of the activating signal per receptor
+			bool kirDidNotBindToAnyOfMHC = true;
+			vector<Gene>::iterator mhcIt;
 			for(mhcIt=mhcGenes.begin(); mhcIt!=mhcGenes.end(); mhcIt++)
 			{
 				int bindingStrength = kirIt->BindMolecule(*mhcIt);
@@ -669,17 +683,13 @@ void Host :: EducateKIRs()
 					//cout << "it binds!"<<endl;
 					kirIt->SetGeneFunctionality(false); //this gene is unlicensed
 					kirIt->SetGeneExpression(false);
-					//cout<< "activating |" <<kirIt->IsFunctional()<< kirIt->GetGeneType()<<endl;
-				}
-				else //BUT if it deosn't bind
-				{
-					//cout << "it doesn't bind!"<<endl;
-					education_signal_activating ++; //keep track of how many MHC it doesn't bind
-					//cout << education_signal_activating <<endl;
+					kirDidNotBindToAnyOfMHC=false;
+					break;
 					//cout<< "activating |" <<kirIt->IsFunctional()<< kirIt->GetGeneType()<<endl;
 				}
 			}
-			if(education_signal_activating == mhcGenes.size()) //if the activating KIR doesn't recognize ANY of the MHC
+			//if(education_signal_activating == mhcGenes.size()) //if the activating KIR doesn't recognize ANY of the MHC
+			if(kirDidNotBindToAnyOfMHC)
 			{
 				//cout << education_signal_activating << "|" << mhcGenes.size() << ": ";
 				kirIt->SetGeneFunctionality(true); //the gene is licensed
@@ -689,12 +699,6 @@ void Host :: EducateKIRs()
 		}
 		CountFunctionalActivatingKIRs();
 	}
-	/*cout <<"after educating all of them"<<endl;
-	for(kirIt=kirGenes.begin(); kirIt!=kirGenes.end();kirIt++)
-	{
-		kirIt->PrintGenes();
-	}*/
-	//exit(-1);
 }
 
 void Host :: ExpressKIRs(int numberOfExtraKirs)
@@ -804,8 +808,8 @@ Host& Host:: Copy(Host& rightHandSideHost)
 	this->dead = rightHandSideHost.dead;
 	this->tuning = rightHandSideHost.tuning;
 	this->age = rightHandSideHost.age;
-	this->LOCI_KIR = rightHandSideHost.LOCI_KIR;
-	this->LOCI_MHC = rightHandSideHost.LOCI_MHC;
+	this->lociKIR = rightHandSideHost.lociKIR;
+	this->lociMHC = rightHandSideHost.lociMHC;
 	this->mainInfectionType = rightHandSideHost.mainInfectionType;
 	this->mutationRateHost = rightHandSideHost.mutationRateHost;
 	this->viralDeathRate = rightHandSideHost.viralDeathRate;
@@ -1089,7 +1093,7 @@ void Host :: ClearDecoyWithInhibitoryOnly(int inhibiting_signal, double simulati
 void Host :: ClearDecoyWithActivatingOnly(int activating_signal, double simulationTime, Infection& _infection)
 {
 	//cout <<"clearing decoy: "<<inhibitoryKIRs << "|"<< activatingKIRs << endl;
-	int counter = 0;
+	//int counter = 0;
 	if(activating_signal) //if activating receptor recognizes decoy, but there are no inhibitory receptors, the virus still escapes response of the T-cells
 	{                       // protection as with an MHC-downregulating one
 		if(RandomNumberDouble()<0.25)
@@ -1264,7 +1268,7 @@ void Host ::SaveParameters(fstream& outfile)
 void Host :: PrintParametersHost()
 {
 	//cout <<age << "\t"<<infections.size()<< "\t"<< acute << chronic << immune << "\t";
-	cout <<LOCI_KIR<<"\t"<<LOCI_MHC<<"\t"<<age << "\t"<< tuning << "\t"<< dead << "\t"<< mutationRateHost << "\t"<<inhibitoryKIRs<<"\t"<<activatingKIRs<<"\t"<< infections.size()<<"\t";
+	cout <<lociKIR<<"\t"<<lociMHC<<"\t"<<age << "\t"<< tuning << "\t"<< dead << "\t"<< mutationRateHost << "\t"<<inhibitoryKIRs<<"\t"<<activatingKIRs<<"\t"<< infections.size()<<"\t";
 	list<Infection>::iterator infIt;
 	vector<KIRGene>::iterator kirIt;
 	vector<Gene>::iterator mhcIt;
@@ -1303,7 +1307,7 @@ void Host::SaveBackupHost(fstream& backupFile)
 	vector<Gene>::iterator mhcIt;
 	list<Infection>::iterator infIt;
 
-	backupFile << LOCI_KIR << "\t"<<LOCI_MHC<<"\t"<< age << "\t"<< tuning << "\t"<< dead << "\t"<< mutationRateHost << "\t"<<inhibitoryKIRs<<"\t"<<activatingKIRs<<"\t"<< infections.size()<<"\t";
+	backupFile << lociKIR << "\t"<<lociMHC<<"\t"<< age << "\t"<< tuning << "\t"<< dead << "\t"<< mutationRateHost << "\t"<<inhibitoryKIRs<<"\t"<<activatingKIRs<<"\t"<< infections.size()<<"\t";
 
 	for(infIt = infections.begin(); infIt != infections.end(); infIt++)
 	{
@@ -1325,8 +1329,8 @@ void Host::RestoreHost(const string& sline)
 {
 	stringstream ssline(sline);
 
-	ssline >> LOCI_KIR;
-	ssline >> LOCI_MHC;
+	ssline >> lociKIR;
+	ssline >> lociMHC;
 	ssline >>age;
 	ssline >> tuning;
 	ssline >> dead;
@@ -1357,7 +1361,7 @@ void Host::RestoreHost(const string& sline)
 
 	string geneString;
 	//cout <<"mhc string>>>>>"<<ssline.str() <<endl;
-	for(int i=0; i<LOCI_MHC*TWO; i++)
+	for(int i=0; i<lociMHC*TWO; i++)
 	{
 		Gene mhc;
 		geneString = mhc.RestoreGenes(ssline);
@@ -1367,7 +1371,7 @@ void Host::RestoreHost(const string& sline)
 	}
 
 	string kirString;
-	for(int i=0; i<LOCI_KIR*TWO; i++)
+	for(int i=0; i<lociKIR*TWO; i++)
 	{
 		//cout <<"kir string>>>>>"<<ssline.str() <<endl;
 		KIRGene kir;

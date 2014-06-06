@@ -157,8 +157,7 @@ bool Map ::IsGeneInMap(KIRGene& gene)
 	map<pair<int,int>, pair <int, int> > :: iterator it = mapGenes.find(geneNrPlusType);
 	if(it != mapGenes.end()) //if it finds the gene
 		return true;
-	else
-		return false;
+	return false;
 
 }
 
@@ -283,7 +282,7 @@ void Gene:: SetGeneSpecificity()
 	specificity = RandomNumber(1,16);
 
 }
-
+/*
 void Gene:: SetPseudogene(bool expression)
 {
 	//a pseudo gene should never be functional or expressed
@@ -301,7 +300,7 @@ void Gene:: SetPseudogene(bool expression)
 	}
 
 }
-
+*/
 void Gene :: SetPseudogene(int M_id)
 {
 
@@ -374,7 +373,7 @@ bool Gene :: IsGeneUnique(vector<Gene>& genePool, int counter)
 	return true;
 }
 
-int Gene::BindMolecule(Gene& anotherMolecule)
+int Gene::BindMolecule(const Gene& anotherMolecule)
 {
 
 	/* old function, when I was using the Bitstring class... now it's not necessary anymore!
@@ -556,21 +555,20 @@ bool KIRGene :: IsInhibitory()
 {
 	if(geneType == inhibitory)
 		return true;
-	else
-		return false;
+	return false;
 }
 
 bool KIRGene :: IsActivating()
 {
 	if(geneType == activating)
 		return true;
-	else
-		return false;
+	
+	return false;
 }
 
 KIRGene& KIRGene::Copy(KIRGene &rhsGene)
 {
-	Gene::Copy(rhsGene);
+	Gene::Copy((Gene&) rhsGene);
 	this->geneType = rhsGene.geneType;
 	//cout << this->geneType<< endl;
 	return *this;

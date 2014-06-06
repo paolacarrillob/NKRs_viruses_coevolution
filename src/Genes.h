@@ -43,7 +43,7 @@ public:
 	void PrintBits();//works
 	void MutateSpecificity();//works
 	bool IsGeneUnique(vector<Gene>& genePool, int counter);//works
-	int BindMolecule(Gene& anotherMolecule); //works NEW
+	int BindMolecule(const Gene& anotherMolecule); //works NEW
 	int CountHammingDistance(Gene& anotherMolecule);
 
 	void SaveBackupGenes(fstream& backupFile);//works
@@ -156,6 +156,8 @@ public:
 #endif /* GENES_H_ */
 
 /*
+ * 06.06.2014: Crete Fix Hot Fix :-|
+ *
  * 22.08.2012: new member variable int specificity.
  * Mutate Gene enhanced with an increase of the specificity value by one
  *

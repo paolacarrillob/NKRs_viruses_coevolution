@@ -324,7 +324,9 @@ void World::Infect(int index)
 						{
 							//get the acute virus
 							Virus dummy;
-							stupidVirus.Copy(hosts.at(randomindex).GetAcuteInfection(dummy));
+							//stupidVirus.Copy(hosts.at(randomindex).GetAcuteInfection(dummy));
+							hosts.at(randomindex).GetAcuteInfection(dummy);
+							stupidVirus.Copy(dummy);
 							//stupidVirus.PrintParametersVirus(); cout <<"Infect acute"<<endl;
 							hosts.at(index).InfectWith(stupidVirus, simulationTime, maxNumberOfInfectionsPerHost);
 						}
@@ -334,7 +336,9 @@ void World::Infect(int index)
 						{
 							// get the chronic virus
 							Virus dummy;
-							stupidVirus.Copy(hosts.at(randomindex).GetChronicInfection(dummy));
+							//stupidVirus.Copy(hosts.at(randomindex).GetChronicInfection(dummy));
+							hosts.at(randomindex).GetChronicInfection(dummy);
+							stupidVirus.Copy(dummy);
 							hosts.at(index).InfectWith(stupidVirus, simulationTime, maxNumberOfInfectionsPerHost);
 						}
 						break;

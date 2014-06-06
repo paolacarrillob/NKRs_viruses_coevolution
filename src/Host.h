@@ -8,7 +8,7 @@
 #ifndef HOST_H_
 #define HOST_H_
 #include "Genes.h"
-#define TWO 2
+#define TWO 2.0
 //#define LOCI_KIR 5
 //#define LOCI_MHC 1
 /*const double YEAR = 31207680.0;
@@ -149,7 +149,7 @@ public:
 	int CountExpressedKIRs(); //ok
 	Host& Copy(Host& rightHandSideHost);//works
 
-	void ResetGenes();
+	void ResetKIRs();
 
 	//double GetIntrinsicDeathRate(const vector<double>& rates);
 	//double GetAgeDependentBirthRate(vector<double>& rates);
@@ -193,8 +193,8 @@ public:
 	unsigned long int Get_Host_ID(){return host_ID;}
 protected:
 
-	int LOCI_KIR;
-	int LOCI_MHC;
+	int lociKIR;
+	int lociMHC;
 	double age;
 	bool dead;
 	bool tuning;
@@ -213,6 +213,8 @@ protected:
 #endif /* HOST_H_ */
 
 /*
+ * 06.06.2014: crete fix hot fix
+ *
  * 23.08.2012: removed int specificity from all function arguments -> all specificity values were taken from genes.GetSpecificity() ....
  *
  * 06.09.2012: changed Host constructors. New argument: kirMap. Changed the mutation-> now it picks a new gene
