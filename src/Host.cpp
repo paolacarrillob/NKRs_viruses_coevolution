@@ -489,7 +489,7 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 			if(L >= newGene.GetGeneSpecificity())
 				M_id += (1<<i);
 		}
-		
+		newGene.SetPseudoGene(M_id);
 		if(gene_type !=2)////force to have only one type of receptors, if the user wants it!
 			newGene.SetGeneType(gene_type);
 		kir_hap2.Copy(newGene);
@@ -515,6 +515,7 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 				if(L >= kir_hap2.GetGeneSpecificity())
 					M_id += (1<<i);
 			}
+			kir_hap2.SetPseudoGene(M_id);
 		}
 
 		if(RandomNumberDouble()<0.8) //mutate L
@@ -533,6 +534,7 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 				if(L >= kir_hap2.GetGeneSpecificity())
 					M_id += (1<<i);
 			}
+			kir_hap2.SetPseudoGene(M_id);
 		}
 		if(RandomNumberDouble()<0.8)//mutate type
 		{
