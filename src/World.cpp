@@ -360,7 +360,6 @@ void World::EscapeOnlyDecoy(int index)
 	list<Infection>::iterator it;
 	for(it = hosts.at(index).infections.begin(); it!= hosts.at(index).infections.end(); it++)
 	{
-		//if(it->pathogen.IsExpressingMolecules()) //why do I need this if statement here?
 			it->pathogen.BuildViralMolecule(mhcID, mutationTypeVirus); //then mutate it!
 	}
 }

@@ -307,6 +307,7 @@ void Gene :: SetPseudogene(int M_id)
 	if(M_id > 0)
 	{
 		pseudoGene = false;
+		isExpressed = false;
 		mID = M_id;
 	}
 	else

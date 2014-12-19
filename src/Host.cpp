@@ -489,7 +489,7 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 			if(L >= newGene.GetGeneSpecificity())
 				M_id += (1<<i);
 		}
-		newGene.SetPseudoGene(M_id);
+		newGene.SetPseudogene(M_id);
 		if(gene_type !=2)////force to have only one type of receptors, if the user wants it!
 			newGene.SetGeneType(gene_type);
 		kir_hap2.Copy(newGene);
@@ -515,7 +515,7 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 				if(L >= kir_hap2.GetGeneSpecificity())
 					M_id += (1<<i);
 			}
-			kir_hap2.SetPseudoGene(M_id);
+			kir_hap2.SetPseudogene(M_id);
 		}
 
 		if(RandomNumberDouble()<0.8) //mutate L
@@ -534,7 +534,7 @@ void Host :: MutateGenes(int mutationType, KIRGene& kir_hap2, Map& kirMap, GeneP
 				if(L >= kir_hap2.GetGeneSpecificity())
 					M_id += (1<<i);
 			}
-			kir_hap2.SetPseudoGene(M_id);
+			kir_hap2.SetPseudogene(M_id);
 		}
 		if(RandomNumberDouble()<0.8)//mutate type
 		{
@@ -673,21 +673,17 @@ void Host :: EducateKIRs()
 			if (kirIt->IsPseudogene())
 				continue;
 			//int education_signal_activating = 0; // to keep track of the activating signal per receptor
+			kirIt->SetGeneFunctionality(false); //default: unlicensed (just redoing it, ResetKIRs is doing this anyway)
+			kirIt->SetGeneExpression(false);
+
 			bool kirDidNotBindToAnyOfMHC = true;
 			vector<Gene>::iterator mhcIt;
 			for(mhcIt=mhcGenes.begin(); mhcIt!=mhcGenes.end(); mhcIt++)
 			{
 				int bindingStrength = kirIt->BindMolecule(*mhcIt);
-				//mhcIt->PrintBits();
-				//kirIt->PrintBits();
 				if(bindingStrength>=kirIt->GetGeneSpecificity()) // if an aNKR binds to the MHC
 				{
-					//cout << "it binds!"<<endl;
-					kirIt->SetGeneFunctionality(false); //this gene is unlicensed
-					kirIt->SetGeneExpression(false);
 					kirDidNotBindToAnyOfMHC=false;
-					break;
-					//cout<< "activating |" <<kirIt->IsFunctional()<< kirIt->GetGeneType()<<endl;
 				}
 			}
 			//if(education_signal_activating == mhcGenes.size()) //if the activating KIR doesn't recognize ANY of the MHC
